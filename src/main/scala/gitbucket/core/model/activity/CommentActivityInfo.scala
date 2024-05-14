@@ -6,15 +6,14 @@ import gitbucket.core.model.Activity
 import gitbucket.core.model.Profile.currentDate
 
 final case class IssueCommentInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  comment: String,
-  issueId: Int
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    comment: String,
+    issueId: Int
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,
@@ -27,15 +26,14 @@ final case class IssueCommentInfo(
 }
 
 final case class PullRequestCommentInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  comment: String,
-  issueId: Int
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    comment: String,
+    issueId: Int
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,
@@ -48,15 +46,14 @@ final case class PullRequestCommentInfo(
 }
 
 final case class CommitCommentInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  comment: String,
-  commitId: String
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    comment: String,
+    commitId: String
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,

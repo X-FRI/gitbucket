@@ -19,192 +19,195 @@ import play.twirl.api.{Html, HtmlFormat}
  */
 object helpers extends AvatarImageProvider with LinkConverter with RequestCache {
 
-  /**
+    /**
    * Format java.util.Date to "yyyy-MM-dd HH:mm:ss".
    */
-  def datetime(date: Date): String = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date)
+    def datetime(date: Date): String = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date)
 
-  val timeUnits = List(
-    (1000L, "second"),
-    (1000L * 60, "minute"),
-    (1000L * 60 * 60, "hour"),
-    (1000L * 60 * 60 * 24, "day"),
-    (1000L * 60 * 60 * 24 * 30, "month"),
-    (1000L * 60 * 60 * 24 * 365, "year")
-  ).reverse
+    val timeUnits = List(
+      (1000L, "second"),
+      (1000L * 60, "minute"),
+      (1000L * 60 * 60, "hour"),
+      (1000L * 60 * 60 * 24, "day"),
+      (1000L * 60 * 60 * 24 * 30, "month"),
+      (1000L * 60 * 60 * 24 * 365, "year")
+    ).reverse
 
-  /**
+    /**
    * Format java.util.Date to "x {seconds/minutes/hours/days/months/years} ago"
    */
-  def datetimeAgo(date: Date): String = {
-    val duration = new Date().getTime - date.getTime
-    timeUnits.find(tuple => duration / tuple._1 > 0) match {
-      case Some((unitValue, unitString)) =>
-        val value = duration / unitValue
-        s"${value} ${unitString}${if (value > 1) "s" else ""} ago"
-      case None => "just now"
+    def datetimeAgo(date: Date): String = {
+        val duration = new Date().getTime - date.getTime
+        timeUnits.find(tuple => duration / tuple._1 > 0) match {
+            case Some((unitValue, unitString)) =>
+                val value = duration / unitValue
+                s"${value} ${unitString}${if (value > 1) "s" else ""} ago"
+            case None => "just now"
+        }
     }
-  }
 
-  /**
+    /**
    * Format java.util.Date to "x {seconds/minutes/hours/days} ago"
    * If duration over 1 month, format to "d MMM (yyyy)"
    */
-  def datetimeAgoRecentOnly(date: Date): String = {
-    val duration = new Date().getTime - date.getTime
-    timeUnits.find(tuple => duration / tuple._1 > 0) match {
-      case Some((_, "month")) => s"on ${new SimpleDateFormat("d MMM", Locale.ENGLISH).format(date)}"
-      case Some((_, "year"))  => s"on ${new SimpleDateFormat("d MMM yyyy", Locale.ENGLISH).format(date)}"
-      case Some((unitValue, unitString)) =>
-        val value = duration / unitValue
-        s"${value} ${unitString}${if (value > 1) "s" else ""} ago"
-      case None => "just now"
+    def datetimeAgoRecentOnly(date: Date): String = {
+        val duration = new Date().getTime - date.getTime
+        timeUnits.find(tuple => duration / tuple._1 > 0) match {
+            case Some((_, "month")) =>
+                s"on ${new SimpleDateFormat("d MMM", Locale.ENGLISH).format(date)}"
+            case Some((_, "year")) =>
+                s"on ${new SimpleDateFormat("d MMM yyyy", Locale.ENGLISH).format(date)}"
+            case Some((unitValue, unitString)) =>
+                val value = duration / unitValue
+                s"${value} ${unitString}${if (value > 1) "s" else ""} ago"
+            case None => "just now"
+        }
     }
-  }
 
-  /**
+    /**
    * Format java.util.Date to "yyyy-MM-dd'T'hh:mm:ss'Z'".
    */
-  def datetimeRFC3339(date: Date): String = {
-    val sf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-    sf.setTimeZone(TimeZone.getTimeZone("UTC"))
-    sf.format(date)
-  }
+    def datetimeRFC3339(date: Date): String = {
+        val sf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+        sf.setTimeZone(TimeZone.getTimeZone("UTC"))
+        sf.format(date)
+    }
 
-  /**
+    /**
    * Format java.util.Date to "yyyy-MM-dd".
    */
-  def date(date: Date): String = new SimpleDateFormat("yyyy-MM-dd").format(date)
+    def date(date: Date): String = new SimpleDateFormat("yyyy-MM-dd").format(date)
 
-  /**
+    /**
    * Format java.util.Date to "yyyyMMDDHHmmss" (for url hash ex. /some/path.css?19800101010203
    */
-  def hashDate(date: Date): String = new SimpleDateFormat("yyyyMMddHHmmss").format(date)
+    def hashDate(date: Date): String = new SimpleDateFormat("yyyyMMddHHmmss").format(date)
 
-  /**
+    /**
    * java.util.Date of boot timestamp.
    */
-  val bootDate: Date = new Date()
+    val bootDate: Date = new Date()
 
-  /**
+    /**
    * hashDate of bootDate for /assets, /plugin-assets
    */
-  def hashQuery: String = hashDate(bootDate)
+    def hashQuery: String = hashDate(bootDate)
 
-  /**
+    /**
    * Returns singular if count is 1, otherwise plural.
    * If plural is not specified, returns singular + "s" as plural.
    */
-  def plural(count: Int, singular: String, plural: String = ""): String =
-    if (count == 1) singular else if (plural.isEmpty) singular + "s" else plural
+    def plural(count: Int, singular: String, plural: String = ""): String =
+        if (count == 1) singular else if (plural.isEmpty) singular + "s" else plural
 
-  /**
+    /**
    * Converts Markdown of Wiki pages to HTML.
    */
-  def markdown(
-    markdown: String,
-    repository: RepositoryService.RepositoryInfo,
-    branch: String,
-    enableWikiLink: Boolean,
-    enableRefsLink: Boolean,
-    enableLineBreaks: Boolean,
-    enableAnchor: Boolean = true,
-    enableTaskList: Boolean = false,
-    hasWritePermission: Boolean = false,
-    pages: List[String] = Nil
-  )(implicit context: Context): Html =
-    Html(
-      Markdown.toHtml(
-        markdown = markdown,
-        repository = repository,
-        branch = branch,
-        enableWikiLink = enableWikiLink,
-        enableRefsLink = enableRefsLink,
-        enableAnchor = enableAnchor,
-        enableLineBreaks = enableLineBreaks,
-        enableTaskList = enableTaskList,
-        hasWritePermission = hasWritePermission,
-        pages = pages
-      )
-    )
+    def markdown(
+        markdown: String,
+        repository: RepositoryService.RepositoryInfo,
+        branch: String,
+        enableWikiLink: Boolean,
+        enableRefsLink: Boolean,
+        enableLineBreaks: Boolean,
+        enableAnchor: Boolean = true,
+        enableTaskList: Boolean = false,
+        hasWritePermission: Boolean = false,
+        pages: List[String] = Nil
+    )(implicit context: Context): Html = Html(Markdown.toHtml(
+      markdown = markdown,
+      repository = repository,
+      branch = branch,
+      enableWikiLink = enableWikiLink,
+      enableRefsLink = enableRefsLink,
+      enableAnchor = enableAnchor,
+      enableLineBreaks = enableLineBreaks,
+      enableTaskList = enableTaskList,
+      hasWritePermission = hasWritePermission,
+      pages = pages
+    ))
 
-  /**
+    /**
    * Render the given source (only markdown is supported in default) as HTML.
    * You can test if a file is renderable in this method by [[isRenderable()]].
    */
-  def renderMarkup(
-    filePath: List[String],
-    fileContent: String,
-    branch: String,
-    repository: RepositoryService.RepositoryInfo,
-    enableWikiLink: Boolean,
-    enableRefsLink: Boolean,
-    enableAnchor: Boolean
-  )(implicit context: Context): Html = {
+    def renderMarkup(
+        filePath: List[String],
+        fileContent: String,
+        branch: String,
+        repository: RepositoryService.RepositoryInfo,
+        enableWikiLink: Boolean,
+        enableRefsLink: Boolean,
+        enableAnchor: Boolean
+    )(implicit context: Context): Html = {
 
-    val fileName = filePath.last.toLowerCase
-    val extension = FileUtil.getExtension(fileName)
-    val renderer = PluginRegistry().getRenderer(extension)
-    renderer.render(
-      RenderRequest(filePath, fileContent, branch, repository, enableWikiLink, enableRefsLink, enableAnchor, context)
-    )
-  }
+        val fileName = filePath.last.toLowerCase
+        val extension = FileUtil.getExtension(fileName)
+        val renderer = PluginRegistry().getRenderer(extension)
+        renderer.render(RenderRequest(
+          filePath,
+          fileContent,
+          branch,
+          repository,
+          enableWikiLink,
+          enableRefsLink,
+          enableAnchor,
+          context
+        ))
+    }
 
-  /**
+    /**
    * Tests whether the given file is renderable. It's tested by the file extension.
    */
-  def isRenderable(fileName: String): Boolean = {
-    PluginRegistry().renderableExtensions.exists(extension => fileName.toLowerCase.endsWith("." + extension))
-  }
+    def isRenderable(fileName: String): Boolean = {
+        PluginRegistry().renderableExtensions
+            .exists(extension => fileName.toLowerCase.endsWith("." + extension))
+    }
 
-  /**
+    /**
    * Creates a link to the issue or the pull request from the issue id.
    */
-  def issueLink(owner: String, repository: String, issueId: Int, title: String)(implicit
-    context: Context
-  ): Html = {
-    Html(createIssueLink(owner, repository, issueId, title))
-  }
+    def issueLink(owner: String, repository: String, issueId: Int, title: String)(implicit
+        context: Context
+    ): Html = { Html(createIssueLink(owner, repository, issueId, title)) }
 
-  /**
+    /**
    * Creates a global link to the issue or the pull request from the issue id.
    */
-  def issueGlobalLink(owner: String, repository: String, issueId: Int, title: String)(implicit
-    context: Context
-  ): Html = {
-    Html(createGlobalIssueLink(owner, repository, issueId, title))
-  }
+    def issueGlobalLink(owner: String, repository: String, issueId: Int, title: String)(implicit
+        context: Context
+    ): Html = { Html(createGlobalIssueLink(owner, repository, issueId, title)) }
 
-  /**
+    /**
    * Returns &lt;img&gt; which displays the avatar icon for the given user name.
    * This method looks up Gravatar if avatar icon has not been configured in user settings.
    */
-  def avatar(userName: String, size: Int, tooltip: Boolean = false, mailAddress: String = "")(implicit
-    context: Context
-  ): Html =
-    getAvatarImageHtml(userName, size, mailAddress, tooltip)
+    def avatar(userName: String, size: Int, tooltip: Boolean = false, mailAddress: String = "")(
+        implicit context: Context
+    ): Html = getAvatarImageHtml(userName, size, mailAddress, tooltip)
 
-  /**
+    /**
    * Returns &lt;img&gt; which displays the avatar icon for the given mail address.
    * This method looks up Gravatar if avatar icon has not been configured in user settings.
    */
-  def avatar(commit: JGitUtil.CommitInfo, size: Int)(implicit context: Context): Html =
-    getAvatarImageHtml(commit.authorName, size, commit.authorEmailAddress)
+    def avatar(commit: JGitUtil.CommitInfo, size: Int)(implicit context: Context): Html =
+        getAvatarImageHtml(commit.authorName, size, commit.authorEmailAddress)
 
-  /**
+    /**
    * Converts commit id, issue id and username to the link.
    */
-  def link(value: String, repository: RepositoryService.RepositoryInfo)(implicit context: Context): Html =
-    Html(decorateHtml(convertRefsLinks(value, repository), repository))
+    def link(value: String, repository: RepositoryService.RepositoryInfo)(implicit
+        context: Context
+    ): Html = Html(decorateHtml(convertRefsLinks(value, repository), repository))
 
-  import scala.util.matching.Regex._
-  implicit class RegexReplaceString(private val s: String) extends AnyVal {
-    def replaceAll(pattern: String)(replacer: Match => String): String = {
-      pattern.r.replaceAllIn(s, (m: Match) => replacer(m).replace("$", "\\$"))
+    import scala.util.matching.Regex._
+    implicit class RegexReplaceString(private val s: String) extends AnyVal {
+        def replaceAll(pattern: String)(replacer: Match => String): String = {
+            pattern.r.replaceAllIn(s, (m: Match) => replacer(m).replace("$", "\\$"))
+        }
     }
-  }
 
-  /**
+    /**
    * Convert link notations in the activity message.
    */
   // format: off

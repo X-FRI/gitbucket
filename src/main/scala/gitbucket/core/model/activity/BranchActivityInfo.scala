@@ -7,15 +7,14 @@ import gitbucket.core.model.Profile.currentDate
 import gitbucket.core.util.JGitUtil.CommitInfo
 
 final case class PushInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  branchName: String,
-  commits: List[CommitInfo]
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    branchName: String,
+    commits: List[CommitInfo]
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,
@@ -26,22 +25,18 @@ final case class PushInfo(
       UUID.randomUUID().toString
     )
 
-  private[this] def buildCommitSummary(commits: List[CommitInfo]): String =
-    commits
-      .take(5)
-      .map(commit => s"${commit.id}:${commit.shortMessage}")
-      .mkString("\n")
+    private[this] def buildCommitSummary(commits: List[CommitInfo]): String = commits.take(5)
+        .map(commit => s"${commit.id}:${commit.shortMessage}").mkString("\n")
 }
 
 final case class CreateBranchInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  branchName: String
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    branchName: String
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,
@@ -54,14 +49,13 @@ final case class CreateBranchInfo(
 }
 
 final case class DeleteBranchInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  branchName: String
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    branchName: String
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,

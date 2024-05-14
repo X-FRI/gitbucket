@@ -5,6 +5,6 @@ package gitbucket.core.plugin
  */
 object Images {
 
-  def dataURI(id: String) = s"data:image/png;base64,${PluginRegistry().getImage(id)}"
+    def dataURI(id: String) = s"data:image/png;base64,${PluginRegistry().getImage(id)}"
 
 }

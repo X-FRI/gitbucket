@@ -10,19 +10,26 @@ import gitbucket.core.service.SystemSettingsService.SystemSettings
  * @param localPath the string to assemble local file path of repository (e.g. "gist/$1/$2")
  * @param filter the filter for request to the Git repository which is defined by this routing
  */
-case class GitRepositoryRouting(urlPattern: String, localPath: String, filter: GitRepositoryFilter) {
+case class GitRepositoryRouting(
+    urlPattern: String,
+    localPath: String,
+    filter: GitRepositoryFilter
+) {
 
-  def this(urlPattern: String, localPath: String) = {
-    this(
-      urlPattern,
-      localPath,
-      new GitRepositoryFilter() {
-        def filter(repositoryName: String, userName: Option[String], settings: SystemSettings, isUpdating: Boolean)(
-          implicit session: Session
-        ): Boolean = true
-      }
-    )
-  }
+    def this(urlPattern: String, localPath: String) = {
+        this(
+          urlPattern,
+          localPath,
+          new GitRepositoryFilter() {
+              def filter(
+                  repositoryName: String,
+                  userName: Option[String],
+                  settings: SystemSettings,
+                  isUpdating: Boolean
+              )(implicit session: Session): Boolean = true
+          }
+        )
+    }
 
 }
 
@@ -31,7 +38,7 @@ case class GitRepositoryRouting(urlPattern: String, localPath: String, filter: G
  */
 trait GitRepositoryFilter {
 
-  /**
+    /**
    * Filters request to Git repository. If this method returns true then request is accepted.
    *
    * @param path the repository path which starts with '/'
@@ -41,8 +48,11 @@ trait GitRepositoryFilter {
    * @param session the database session
    * @return true if allow accessing to repository, otherwise false.
    */
-  def filter(path: String, userName: Option[String], settings: SystemSettings, isUpdating: Boolean)(implicit
-    session: Session
-  ): Boolean
+    def filter(
+        path: String,
+        userName: Option[String],
+        settings: SystemSettings,
+        isUpdating: Boolean
+    )(implicit session: Session): Boolean
 
 }

@@ -4,41 +4,42 @@ import com.github.takezoe.slick.blocking.BlockingJdbcProfile
 import gitbucket.core.util.DatabaseConfig
 
 trait Profile {
-  val profile: BlockingJdbcProfile
-  import profile.blockingApi._
+    val profile: BlockingJdbcProfile
+    import profile.blockingApi._
 
-  /**
+    /**
    * java.util.Date Mapped Column Types
    */
-  implicit val dateColumnType: BaseColumnType[java.util.Date] =
-    MappedColumnType.base[java.util.Date, java.sql.Timestamp](
-      d => new java.sql.Timestamp(d.getTime),
-      t => new java.util.Date(t.getTime)
-    )
+    implicit val dateColumnType: BaseColumnType[java.util.Date] = MappedColumnType
+        .base[java.util.Date, java.sql.Timestamp](
+          d => new java.sql.Timestamp(d.getTime),
+          t => new java.util.Date(t.getTime)
+        )
 
-  /**
+    /**
    * WebHookBase.Event Column Types
    */
-  implicit val eventColumnType: BaseColumnType[WebHook.Event] =
-    MappedColumnType.base[WebHook.Event, String](_.name, WebHook.Event.valueOf(_))
+    implicit val eventColumnType: BaseColumnType[WebHook.Event] = MappedColumnType
+        .base[WebHook.Event, String](_.name, WebHook.Event.valueOf(_))
 
-  /**
+    /**
    * Extends Column to add conditional condition
    */
-  implicit class RichColumn(c1: Rep[Boolean]) {
-    def &&(c2: => Rep[Boolean], guard: => Boolean): Rep[Boolean] = if (guard) c1 && c2 else c1
-  }
+    implicit class RichColumn(c1: Rep[Boolean]) {
+        def &&(c2: => Rep[Boolean], guard: => Boolean): Rep[Boolean] = if (guard) c1 && c2 else c1
+    }
 
-  /**
+    /**
    * Returns system date.
    */
-  def currentDate = new java.util.Date()
+    def currentDate = new java.util.Date()
 
 }
 
-trait ProfileProvider { self: Profile =>
+trait ProfileProvider {
+    self: Profile =>
 
-  lazy val profile = DatabaseConfig.slickDriver
+    lazy val profile = DatabaseConfig.slickDriver
 
 }
 

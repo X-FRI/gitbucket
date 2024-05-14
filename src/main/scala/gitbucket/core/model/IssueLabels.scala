@@ -1,20 +1,17 @@
 package gitbucket.core.model
 
-trait IssueLabelComponent extends TemplateComponent { self: Profile =>
-  import profile.api._
+trait IssueLabelComponent extends TemplateComponent {
+    self: Profile =>
+    import profile.api._
 
-  lazy val IssueLabels = TableQuery[IssueLabels]
+    lazy val IssueLabels = TableQuery[IssueLabels]
 
-  class IssueLabels(tag: Tag) extends Table[IssueLabel](tag, "ISSUE_LABEL") with IssueTemplate with LabelTemplate {
-    def * = (userName, repositoryName, issueId, labelId).mapTo[IssueLabel]
-    def byPrimaryKey(owner: String, repository: String, issueId: Int, labelId: Int) =
-      byIssue(owner, repository, issueId) && (this.labelId === labelId.bind)
-  }
+    class IssueLabels(tag: Tag)
+        extends Table[IssueLabel](tag, "ISSUE_LABEL") with IssueTemplate with LabelTemplate {
+        def * = (userName, repositoryName, issueId, labelId).mapTo[IssueLabel]
+        def byPrimaryKey(owner: String, repository: String, issueId: Int, labelId: Int) =
+            byIssue(owner, repository, issueId) && (this.labelId === labelId.bind)
+    }
 }
 
-case class IssueLabel(
-  userName: String,
-  repositoryName: String,
-  issueId: Int,
-  labelId: Int
-)
+case class IssueLabel(userName: String, repositoryName: String, issueId: Int, labelId: Int)

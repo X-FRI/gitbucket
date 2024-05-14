@@ -7,10 +7,9 @@ import gitbucket.core.util.RepositoryName
  * https://developer.github.com/v3/repos/#enabling-and-disabling-branch-protection
  */
 case class ApiBranch(name: String, commit: ApiBranchCommit, protection: ApiBranchProtection)(
-  repositoryName: RepositoryName
+    repositoryName: RepositoryName
 ) extends FieldSerializable {
-  val _links =
-    Map(
+    val _links = Map(
       "self" -> ApiPath(s"/api/v3/repos/${repositoryName.fullName}/branches/${name}"),
       "html" -> ApiPath(s"/${repositoryName.fullName}/tree/${name}")
     )
@@ -18,16 +17,9 @@ case class ApiBranch(name: String, commit: ApiBranchCommit, protection: ApiBranc
 
 case class ApiBranchCommit(sha: String)
 
-case class ApiBranchForList(
-  name: String,
-  commit: ApiBranchCommit
-)
+case class ApiBranchForList(name: String, commit: ApiBranchCommit)
 
 /**
  * https://docs.github.com/en/rest/reference/repos#list-branches-for-head-commit
  */
-case class ApiBranchForHeadCommit(
-  name: String,
-  commit: ApiBranchCommit,
-  `protected`: Boolean
-)
+case class ApiBranchForHeadCommit(name: String, commit: ApiBranchCommit, `protected`: Boolean)

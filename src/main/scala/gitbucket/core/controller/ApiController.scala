@@ -58,46 +58,32 @@ class ApiController
 
 trait ApiControllerBase extends ControllerBase {
 
-  /**
+    /**
    * 404 for non-implemented api
    */
-  get("/api/v3/*") {
-    NotFound()
-  }
-  post("/api/v3/*") {
-    NotFound()
-  }
-  put("/api/v3/*") {
-    NotFound()
-  }
-  delete("/api/v3/*") {
-    NotFound()
-  }
-  patch("/api/v3/*") {
-    NotFound()
-  }
+    get("/api/v3/*") { NotFound() }
+    post("/api/v3/*") { NotFound() }
+    put("/api/v3/*") { NotFound() }
+    delete("/api/v3/*") { NotFound() }
+    patch("/api/v3/*") { NotFound() }
 
-  /**
+    /**
    * https://developer.github.com/v3/#root-endpoint
    */
-  get("/api/v3") {
-    JsonFormat(ApiEndPoint())
-  }
+    get("/api/v3") { JsonFormat(ApiEndPoint()) }
 
-  /**
+    /**
    * @see https://developer.github.com/v3/rate_limit/#get-your-current-rate-limit-status
    * but not enabled.
    */
-  get("/api/v3/rate_limit") {
-    contentType = formats("json")
-    // this message is same as github enterprise...
-    org.scalatra.NotFound(ApiError("Rate limiting is not enabled."))
-  }
+    get("/api/v3/rate_limit") {
+        contentType = formats("json")
+        // this message is same as github enterprise...
+        org.scalatra.NotFound(ApiError("Rate limiting is not enabled."))
+    }
 
-  /**
+    /**
    * non-GitHub compatible API for listing plugins
    */
-  get("/api/v3/gitbucket/plugins") {
-    PluginRegistry().getPlugins().map { ApiPlugin(_) }
-  }
+    get("/api/v3/gitbucket/plugins") { PluginRegistry().getPlugins().map { ApiPlugin(_) } }
 }

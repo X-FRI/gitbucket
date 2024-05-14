@@ -6,14 +6,13 @@ import gitbucket.core.model.Activity
 import gitbucket.core.model.Profile.currentDate
 
 final case class CreateWikiPageInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  pageName: String
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    pageName: String
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,
@@ -26,15 +25,14 @@ final case class CreateWikiPageInfo(
 }
 
 final case class EditWikiPageInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  pageName: String,
-  commitId: String
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    pageName: String,
+    commitId: String
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,
@@ -47,14 +45,13 @@ final case class EditWikiPageInfo(
 }
 
 final case class DeleteWikiInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  pageName: String,
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    pageName: String
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,

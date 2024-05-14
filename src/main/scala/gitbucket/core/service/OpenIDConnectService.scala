@@ -23,15 +23,16 @@ import scala.jdk.CollectionConverters._
  * Service class for the OpenID Connect authentication.
  */
 trait OpenIDConnectService {
-  self: AccountFederationService =>
+    self: AccountFederationService =>
 
-  private val logger = LoggerFactory.getLogger(classOf[OpenIDConnectService])
+    private val logger = LoggerFactory.getLogger(classOf[OpenIDConnectService])
 
-  private val JWK_REQUEST_TIMEOUT = 5000
+    private val JWK_REQUEST_TIMEOUT = 5000
 
-  private val OIDC_SCOPE = new Scope(OIDCScopeValue.OPENID, OIDCScopeValue.EMAIL, OIDCScopeValue.PROFILE)
+    private val OIDC_SCOPE =
+        new Scope(OIDCScopeValue.OPENID, OIDCScopeValue.EMAIL, OIDCScopeValue.PROFILE)
 
-  /**
+    /**
    * Obtain the OIDC metadata from discovery and create an authentication request.
    *
    * @param issuer      Issuer, used to construct the discovery endpoint URL, e.g. https://accounts.google.com
@@ -39,25 +40,42 @@ trait OpenIDConnectService {
    * @param redirectURI Redirect URI
    * @return Authentication request
    */
-  def createOIDCAuthenticationRequest(issuer: Issuer, clientID: ClientID, redirectURI: URI): AuthenticationRequest = {
-    val metadata = OIDCProviderMetadata.resolve(issuer)
-    new AuthenticationRequest(
-      metadata.getAuthorizationEndpointURI,
-      new ResponseType(ResponseType.Value.CODE),
-      OIDC_SCOPE,
-      clientID,
-      redirectURI,
-      new State(),
-      new Nonce()
-    )
-  }
+    def createOIDCAuthenticationRequest(
+        issuer: Issuer,
+        clientID: ClientID,
+        redirectURI: URI
+    ): AuthenticationRequest = {
+        val metadata = OIDCProviderMetadata.resolve(issuer)
+        new AuthenticationRequest(
+          metadata.getAuthorizationEndpointURI,
+          new ResponseType(ResponseType.Value.CODE),
+          OIDC_SCOPE,
+          clientID,
+          redirectURI,
+          new State(),
+          new Nonce()
+        )
+    }
 
-  def createOIDLogoutRequest(issuer: Issuer, clientID: ClientID, redirectURI: URI, token: JWT): LogoutRequest = {
-    val metadata = OIDCProviderMetadata.resolve(issuer)
-    new LogoutRequest(metadata.getEndSessionEndpointURI, token, null, clientID, redirectURI, null, null)
-  }
+    def createOIDLogoutRequest(
+        issuer: Issuer,
+        clientID: ClientID,
+        redirectURI: URI,
+        token: JWT
+    ): LogoutRequest = {
+        val metadata = OIDCProviderMetadata.resolve(issuer)
+        new LogoutRequest(
+          metadata.getEndSessionEndpointURI,
+          token,
+          null,
+          clientID,
+          redirectURI,
+          null,
+          null
+        )
+    }
 
-  /**
+    /**
    * Proceed the OpenID Connect authentication.
    *
    * @param params      Query parameters of the authentication response
@@ -67,35 +85,42 @@ trait OpenIDConnectService {
    * @param oidc        OIDC settings
    * @return (ID token, GitBucket account)
    */
-  def authenticate(
-    params: Map[String, String],
-    redirectURI: URI,
-    state: State,
-    nonce: Nonce,
-    oidc: SystemSettingsService.OIDC
-  )(implicit s: Session): Option[(JWT, Account)] =
-    validateOIDCAuthenticationResponse(params, state, redirectURI) flatMap { authenticationResponse =>
-      obtainOIDCToken(authenticationResponse.getAuthorizationCode, nonce, redirectURI, oidc) flatMap {
-        case (jwt, claims) =>
-          Seq("email", "preferred_username", "name").map(k => Option(claims.getStringClaim(k))) match {
-            case Seq(Some(email), preferredUsername, name) =>
-              getOrCreateFederatedUser(
-                claims.getIssuer.getValue,
-                claims.getSubject.getValue,
-                email,
-                preferredUsername,
-                name
-              ).map { account =>
-                (jwt, account)
-              }
-            case _ =>
-              logger.info(s"OIDC ID token must have an email claim: claims=${claims.toJSONObject}")
-              None
-          }
-      }
+    def authenticate(
+        params: Map[String, String],
+        redirectURI: URI,
+        state: State,
+        nonce: Nonce,
+        oidc: SystemSettingsService.OIDC
+    )(implicit s: Session): Option[(JWT, Account)] = validateOIDCAuthenticationResponse(
+      params,
+      state,
+      redirectURI
+    ) flatMap { authenticationResponse =>
+        obtainOIDCToken(
+          authenticationResponse.getAuthorizationCode,
+          nonce,
+          redirectURI,
+          oidc
+        ) flatMap { case (jwt, claims) =>
+            Seq("email", "preferred_username", "name")
+                .map(k => Option(claims.getStringClaim(k))) match {
+                case Seq(Some(email), preferredUsername, name) => getOrCreateFederatedUser(
+                      claims.getIssuer.getValue,
+                      claims.getSubject.getValue,
+                      email,
+                      preferredUsername,
+                      name
+                    ).map { account => (jwt, account) }
+                case _ =>
+                    logger.info(
+                      s"OIDC ID token must have an email claim: claims=${claims.toJSONObject}"
+                    )
+                    None
+            }
+        }
     }
 
-  /**
+    /**
    * Validate the authentication response.
    *
    * @param params      Query parameters of the authentication response
@@ -103,34 +128,36 @@ trait OpenIDConnectService {
    * @param redirectURI Redirect URI
    * @return Authentication response
    */
-  def validateOIDCAuthenticationResponse(
-    params: Map[String, String],
-    state: State,
-    redirectURI: URI
-  ): Option[AuthenticationSuccessResponse] =
-    try {
-      AuthenticationResponseParser.parse(
-        redirectURI,
-        params.map { case (key, value) => (key, List(value).asJava) }.asJava
-      ) match {
-        case response: AuthenticationSuccessResponse =>
-          if (response.getState == state) {
-            Some(response)
-          } else {
-            logger.info(s"OIDC authentication state did not match: response(${response.getState}) != session($state)")
-            None
-          }
-        case response: AuthenticationErrorResponse =>
-          logger.info(s"OIDC authentication response has error: ${response.getErrorObject}")
-          None
-      }
-    } catch {
-      case e: ParseException =>
-        logger.info(s"OIDC authentication response has error: $e")
-        None
-    }
+    def validateOIDCAuthenticationResponse(
+        params: Map[String, String],
+        state: State,
+        redirectURI: URI
+    ): Option[AuthenticationSuccessResponse] =
+        try {
+            AuthenticationResponseParser.parse(
+              redirectURI,
+              params.map { case (key, value) => (key, List(value).asJava) }.asJava
+            ) match {
+                case response: AuthenticationSuccessResponse =>
+                    if (response.getState == state) { Some(response) }
+                    else {
+                        logger.info(
+                          s"OIDC authentication state did not match: response(${response.getState}) != session($state)"
+                        )
+                        None
+                    }
+                case response: AuthenticationErrorResponse =>
+                    logger
+                        .info(s"OIDC authentication response has error: ${response.getErrorObject}")
+                    None
+            }
+        } catch {
+            case e: ParseException =>
+                logger.info(s"OIDC authentication response has error: $e")
+                None
+        }
 
-  /**
+    /**
    * Obtain the ID token from the OpenID Provider.
    *
    * @param authorizationCode Authorization code in the query string
@@ -139,36 +166,38 @@ trait OpenIDConnectService {
    * @param oidc              OIDC settings
    * @return Token response
    */
-  def obtainOIDCToken(
-    authorizationCode: AuthorizationCode,
-    nonce: Nonce,
-    redirectURI: URI,
-    oidc: SystemSettingsService.OIDC
-  ): Option[(JWT, IDTokenClaimsSet)] = {
-    val metadata = OIDCProviderMetadata.resolve(oidc.issuer)
-    val tokenRequest = new TokenRequest(
-      metadata.getTokenEndpointURI,
-      new ClientSecretBasic(oidc.clientID, oidc.clientSecret),
-      new AuthorizationCodeGrant(authorizationCode, redirectURI),
-      OIDC_SCOPE
-    )
-    val httpResponse = tokenRequest.toHTTPRequest.send()
-    try {
-      OIDCTokenResponseParser.parse(httpResponse) match {
-        case response: OIDCTokenResponse =>
-          validateOIDCTokenResponse(response, metadata, nonce, oidc)
-        case response: TokenErrorResponse =>
-          logger.info(s"OIDC token response has error: ${response.getErrorObject.toJSONObject}")
-          None
-      }
-    } catch {
-      case e: ParseException =>
-        logger.info(s"OIDC token response has error: $e")
-        None
+    def obtainOIDCToken(
+        authorizationCode: AuthorizationCode,
+        nonce: Nonce,
+        redirectURI: URI,
+        oidc: SystemSettingsService.OIDC
+    ): Option[(JWT, IDTokenClaimsSet)] = {
+        val metadata = OIDCProviderMetadata.resolve(oidc.issuer)
+        val tokenRequest = new TokenRequest(
+          metadata.getTokenEndpointURI,
+          new ClientSecretBasic(oidc.clientID, oidc.clientSecret),
+          new AuthorizationCodeGrant(authorizationCode, redirectURI),
+          OIDC_SCOPE
+        )
+        val httpResponse = tokenRequest.toHTTPRequest.send()
+        try {
+            OIDCTokenResponseParser.parse(httpResponse) match {
+                case response: OIDCTokenResponse =>
+                    validateOIDCTokenResponse(response, metadata, nonce, oidc)
+                case response: TokenErrorResponse =>
+                    logger.info(
+                      s"OIDC token response has error: ${response.getErrorObject.toJSONObject}"
+                    )
+                    None
+            }
+        } catch {
+            case e: ParseException =>
+                logger.info(s"OIDC token response has error: $e")
+                None
+        }
     }
-  }
 
-  /**
+    /**
    * Validate the token response.
    *
    * @param response Token response
@@ -176,47 +205,45 @@ trait OpenIDConnectService {
    * @param nonce    Nonce
    * @return Claims
    */
-  def validateOIDCTokenResponse(
-    response: OIDCTokenResponse,
-    metadata: OIDCProviderMetadata,
-    nonce: Nonce,
-    oidc: SystemSettingsService.OIDC
-  ): Option[(JWT, IDTokenClaimsSet)] =
-    Option(response.getOIDCTokens.getIDToken) match {
-      case Some(jwt) =>
-        val validator = oidc.jwsAlgorithm map { jwsAlgorithm =>
-          new IDTokenValidator(
-            metadata.getIssuer,
-            oidc.clientID,
-            jwsAlgorithm,
-            metadata.getJWKSetURI.toURL,
-            new DefaultResourceRetriever(JWK_REQUEST_TIMEOUT, JWK_REQUEST_TIMEOUT)
-          )
-        } getOrElse {
-          new IDTokenValidator(metadata.getIssuer, oidc.clientID)
-        }
-        try {
-          Some((jwt, validator.validate(jwt, nonce)))
-        } catch {
-          case e @ (_: BadJOSEException | _: JOSEException) =>
-            logger.info(s"OIDC ID token has error: $e")
+    def validateOIDCTokenResponse(
+        response: OIDCTokenResponse,
+        metadata: OIDCProviderMetadata,
+        nonce: Nonce,
+        oidc: SystemSettingsService.OIDC
+    ): Option[(JWT, IDTokenClaimsSet)] = Option(response.getOIDCTokens.getIDToken) match {
+        case Some(jwt) =>
+            val validator = oidc.jwsAlgorithm map { jwsAlgorithm =>
+                new IDTokenValidator(
+                  metadata.getIssuer,
+                  oidc.clientID,
+                  jwsAlgorithm,
+                  metadata.getJWKSetURI.toURL,
+                  new DefaultResourceRetriever(JWK_REQUEST_TIMEOUT, JWK_REQUEST_TIMEOUT)
+                )
+            } getOrElse { new IDTokenValidator(metadata.getIssuer, oidc.clientID) }
+            try { Some((jwt, validator.validate(jwt, nonce))) }
+            catch {
+                case e @ (_: BadJOSEException | _: JOSEException) =>
+                    logger.info(s"OIDC ID token has error: $e")
+                    None
+            }
+        case None =>
+            logger.info(
+              s"OIDC token response does not have a valid ID token: ${response.toJSONObject}"
+            )
             None
-        }
-      case None =>
-        logger.info(s"OIDC token response does not have a valid ID token: ${response.toJSONObject}")
-        None
     }
 }
 
 object OpenIDConnectService {
 
-  /**
+    /**
    * All signature algorithms.
    */
-  val JWS_ALGORITHMS: Map[String, Set[JWSAlgorithm]] = Seq(
-    "HMAC" -> Family.HMAC_SHA,
-    "RSA" -> Family.RSA,
-    "ECDSA" -> Family.EC,
-    "EdDSA" -> Family.ED
-  ).toMap.map { case (name, family) => (name, family.asScala.toSet) }
+    val JWS_ALGORITHMS: Map[String, Set[JWSAlgorithm]] = Seq(
+      "HMAC" -> Family.HMAC_SHA,
+      "RSA" -> Family.RSA,
+      "ECDSA" -> Family.EC,
+      "EdDSA" -> Family.ED
+    ).toMap.map { case (name, family) => (name, family.asScala.toSet) }
 }

@@ -6,15 +6,14 @@ import gitbucket.core.model.Activity
 import gitbucket.core.model.Profile.currentDate
 
 final case class CreateIssueInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  issueId: Int,
-  title: String
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    issueId: Int,
+    title: String
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,
@@ -27,15 +26,14 @@ final case class CreateIssueInfo(
 }
 
 final case class CloseIssueInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  issueId: Int,
-  title: String
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    issueId: Int,
+    title: String
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,
@@ -48,15 +46,14 @@ final case class CloseIssueInfo(
 }
 
 final case class ReopenIssueInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  issueId: Int,
-  title: String
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    issueId: Int,
+    title: String
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,
@@ -69,15 +66,14 @@ final case class ReopenIssueInfo(
 }
 
 final case class OpenPullRequestInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  issueId: Int,
-  title: String
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    issueId: Int,
+    title: String
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,
@@ -90,15 +86,14 @@ final case class OpenPullRequestInfo(
 }
 
 final case class ClosePullRequestInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  issueId: Int,
-  title: String
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    issueId: Int,
+    title: String
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,
@@ -111,15 +106,14 @@ final case class ClosePullRequestInfo(
 }
 
 final case class ReopenPullRequestInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  issueId: Int,
-  title: String
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    issueId: Int,
+    title: String
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,

@@ -5,6 +5,6 @@ import profile.api._
 
 trait AccountHook {
 
-  def deleted(userName: String)(implicit session: Session): Unit = ()
+    def deleted(userName: String)(implicit session: Session): Unit = ()
 
 }

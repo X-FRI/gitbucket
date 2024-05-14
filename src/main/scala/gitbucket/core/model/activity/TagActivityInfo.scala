@@ -6,14 +6,13 @@ import gitbucket.core.model.Activity
 import gitbucket.core.model.Profile.currentDate
 
 final case class CreateTagInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  tagName: String,
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    tagName: String
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,
@@ -26,14 +25,13 @@ final case class CreateTagInfo(
 }
 
 final case class DeleteTagInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  tagName: String
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    tagName: String
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,

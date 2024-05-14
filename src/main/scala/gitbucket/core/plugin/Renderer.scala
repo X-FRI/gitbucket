@@ -11,45 +11,45 @@ import play.twirl.api.Html
  */
 trait Renderer {
 
-  /**
+    /**
    * Render the given request to HTML.
    */
-  def render(request: RenderRequest): Html
+    def render(request: RenderRequest): Html
 
 }
 
 object MarkdownRenderer extends Renderer {
-  override def render(request: RenderRequest): Html = {
-    import request._
-    Html(
-      Markdown.toHtml(
-        markdown = fileContent,
-        repository = repository,
-        branch = branch,
-        enableWikiLink = enableWikiLink,
-        enableRefsLink = enableRefsLink,
-        enableAnchor = enableAnchor,
-        enableLineBreaks = false,
-        enableTaskList = true,
-        hasWritePermission = false
-      )(context)
-    )
-  }
+    override def render(request: RenderRequest): Html = {
+        import request._
+        Html(
+          Markdown.toHtml(
+            markdown = fileContent,
+            repository = repository,
+            branch = branch,
+            enableWikiLink = enableWikiLink,
+            enableRefsLink = enableRefsLink,
+            enableAnchor = enableAnchor,
+            enableLineBreaks = false,
+            enableTaskList = true,
+            hasWritePermission = false
+          )(context)
+        )
+    }
 }
 
 object DefaultRenderer extends Renderer {
-  override def render(request: RenderRequest): Html = {
-    Html(s"""<tt><pre class="plain">${urlLink(request.fileContent)}</pre></tt>""")
-  }
+    override def render(request: RenderRequest): Html = {
+        Html(s"""<tt><pre class="plain">${urlLink(request.fileContent)}</pre></tt>""")
+    }
 }
 
 case class RenderRequest(
-  filePath: List[String],
-  fileContent: String,
-  branch: String,
-  repository: RepositoryService.RepositoryInfo,
-  enableWikiLink: Boolean,
-  enableRefsLink: Boolean,
-  enableAnchor: Boolean,
-  context: Context
+    filePath: List[String],
+    fileContent: String,
+    branch: String,
+    repository: RepositoryService.RepositoryInfo,
+    enableWikiLink: Boolean,
+    enableRefsLink: Boolean,
+    enableAnchor: Boolean,
+    context: Context
 )

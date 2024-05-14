@@ -6,13 +6,12 @@ import gitbucket.core.model.Activity
 import gitbucket.core.model.Profile.currentDate
 
 final case class CreateRepositoryInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String
+    userName: String,
+    repositoryName: String,
+    activityUserName: String
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,
@@ -25,13 +24,12 @@ final case class CreateRepositoryInfo(
 }
 
 final case class DeleteRepositoryInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String
+    userName: String,
+    repositoryName: String,
+    activityUserName: String
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,
@@ -44,14 +42,13 @@ final case class DeleteRepositoryInfo(
 }
 
 final case class TransferRepositoryInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  oldUserName: String
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    oldUserName: String
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,
@@ -64,14 +61,13 @@ final case class TransferRepositoryInfo(
 }
 
 final case class RenameRepositoryInfo(
-  userName: String,
-  repositoryName: String,
-  activityUserName: String,
-  oldRepositoryName: String
+    userName: String,
+    repositoryName: String,
+    activityUserName: String,
+    oldRepositoryName: String
 ) extends BaseActivityInfo {
 
-  override def toActivity: Activity =
-    Activity(
+    override def toActivity: Activity = Activity(
       userName,
       repositoryName,
       activityUserName,

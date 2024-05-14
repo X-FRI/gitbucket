@@ -71,32 +71,36 @@ object GitBucketCoreModule
       new Version(
         "4.34.0",
         new Migration() {
-          override def migrate(moduleId: String, version: String, context: java.util.Map[String, AnyRef]): Unit = {
-            implicit val formats: Formats = Serialization.formats(NoTypeHints)
-            import JDBCUtil._
+            override def migrate(
+                moduleId: String,
+                version: String,
+                context: java.util.Map[String, AnyRef]
+            ): Unit = {
+                implicit val formats: Formats = Serialization.formats(NoTypeHints)
+                import JDBCUtil._
 
-            val conn = context.get(Solidbase.CONNECTION).asInstanceOf[Connection]
-            val list = conn.select("SELECT * FROM ACTIVITY ORDER BY ACTIVITY_ID") { rs =>
-              Activity(
-                activityId = UUID.randomUUID().toString,
-                userName = rs.getString("USER_NAME"),
-                repositoryName = rs.getString("REPOSITORY_NAME"),
-                activityUserName = rs.getString("ACTIVITY_USER_NAME"),
-                activityType = rs.getString("ACTIVITY_TYPE"),
-                message = rs.getString("MESSAGE"),
-                additionalInfo = {
-                  val additionalInfo = rs.getString("ADDITIONAL_INFO")
-                  if (rs.wasNull()) None else Some(additionalInfo)
-                },
-                activityDate = rs.getTimestamp("ACTIVITY_DATE")
-              )
+                val conn = context.get(Solidbase.CONNECTION).asInstanceOf[Connection]
+                val list = conn.select("SELECT * FROM ACTIVITY ORDER BY ACTIVITY_ID") { rs =>
+                    Activity(
+                      activityId = UUID.randomUUID().toString,
+                      userName = rs.getString("USER_NAME"),
+                      repositoryName = rs.getString("REPOSITORY_NAME"),
+                      activityUserName = rs.getString("ACTIVITY_USER_NAME"),
+                      activityType = rs.getString("ACTIVITY_TYPE"),
+                      message = rs.getString("MESSAGE"),
+                      additionalInfo = {
+                          val additionalInfo = rs.getString("ADDITIONAL_INFO")
+                          if (rs.wasNull()) None else Some(additionalInfo)
+                      },
+                      activityDate = rs.getTimestamp("ACTIVITY_DATE")
+                    )
+                }
+                Using.resource(new FileOutputStream(ActivityLog, true)) { out =>
+                    list.foreach { activity =>
+                        out.write((write(activity) + "\n").getBytes(StandardCharsets.UTF_8))
+                    }
+                }
             }
-            Using.resource(new FileOutputStream(ActivityLog, true)) { out =>
-              list.foreach { activity =>
-                out.write((write(activity) + "\n").getBytes(StandardCharsets.UTF_8))
-              }
-            }
-          }
         },
         new LiquibaseMigration("update/gitbucket-core_4.34.xml")
       ),

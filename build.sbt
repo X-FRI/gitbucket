@@ -8,8 +8,7 @@ val ScalatraVersion = "3.0.0"
 val JettyVersion = "10.0.20"
 val JgitVersion = "6.9.0.202403050737-r"
 
-lazy val root = (project in file("."))
-  .enablePlugins(SbtTwirl, ScalatraPlugin)
+lazy val root = (project in file(".")).enablePlugins(SbtTwirl, ScalatraPlugin)
 
 sourcesInBase := false
 organization := Organization
@@ -37,16 +36,17 @@ libraryDependencies ++= Seq(
   "org.apache.commons"        % "commons-email"                % "1.6.0",
   "commons-net"               % "commons-net"                  % "3.10.0",
   "org.apache.httpcomponents" % "httpclient"                   % "4.5.14",
-  "org.apache.sshd" % "apache-sshd" % "2.12.1" exclude ("org.slf4j", "slf4j-jdk14") exclude ("org.apache.sshd", "sshd-mina") exclude ("org.apache.sshd", "sshd-netty"),
-  "org.apache.tika"                 % "tika-core"                % "2.9.2",
-  "com.github.takezoe"             %% "blocking-slick"           % "0.0.14",
-  "com.novell.ldap"                 % "jldap"                    % "2009-10-07",
-  "com.h2database"                  % "h2"                       % "1.4.199",
-  "org.mariadb.jdbc"                % "mariadb-java-client"      % "2.7.6",
-  "org.postgresql"                  % "postgresql"               % "42.7.3",
-  "ch.qos.logback"                  % "logback-classic"          % "1.5.6",
-  "com.zaxxer"                      % "HikariCP"                 % "5.1.0" exclude ("org.slf4j", "slf4j-api"),
-  "com.typesafe"                    % "config"                   % "1.4.3",
+  "org.apache.sshd" % "apache-sshd" % "2.12.1" exclude ("org.slf4j", "slf4j-jdk14") exclude
+      ("org.apache.sshd", "sshd-mina") exclude ("org.apache.sshd", "sshd-netty"),
+  "org.apache.tika"     % "tika-core"           % "2.9.2",
+  "com.github.takezoe" %% "blocking-slick"      % "0.0.14",
+  "com.novell.ldap"     % "jldap"               % "2009-10-07",
+  "com.h2database"      % "h2"                  % "1.4.199",
+  "org.mariadb.jdbc"    % "mariadb-java-client" % "2.7.6",
+  "org.postgresql"      % "postgresql"          % "42.7.3",
+  "ch.qos.logback"      % "logback-classic"     % "1.5.6",
+  "com.zaxxer"          % "HikariCP"            % "5.1.0" exclude ("org.slf4j", "slf4j-api"),
+  "com.typesafe"        % "config"              % "1.4.3",
   "fr.brouillard.oss.security.xhub" % "xhub4j-core"              % "1.1.0",
   "io.github.java-diff-utils"       % "java-diff-utils"          % "4.12",
   "org.cache2k"                     % "cache2k-all"              % "1.6.0.Final",
@@ -77,12 +77,10 @@ scalacOptions := Seq(
   "-Wconf:cat=unused&src=twirl/.*:s,cat=unused&src=scala/gitbucket/core/model/[^/]+\\.scala:s"
 )
 scalacOptions ++= {
-  scalaBinaryVersion.value match {
-    case "2.13" =>
-      Seq("-Xsource:3")
-    case _ =>
-      Nil
-  }
+    scalaBinaryVersion.value match {
+        case "2.13" => Seq("-Xsource:3")
+        case _      => Nil
+    }
 }
 compile / javacOptions ++= Seq("-target", "11", "-source", "11")
 Jetty / javaOptions += "-Dlogback.configurationFile=/logback-dev.xml"
@@ -99,19 +97,18 @@ packageOptions += Package.MainClass("JettyLauncher")
 // Assembly settings
 assembly / test := {}
 assembly / assemblyMergeStrategy := {
-  case PathList("META-INF", xs @ _*) =>
-    (xs map { _.toLowerCase }) match {
-      case ("manifest.mf" :: Nil) => MergeStrategy.discard
-      case _                      => MergeStrategy.discard
-    }
-  case x => MergeStrategy.first
+    case PathList("META-INF", xs @ _*) => (xs map { _.toLowerCase }) match {
+            case ("manifest.mf" :: Nil) => MergeStrategy.discard
+            case _                      => MergeStrategy.discard
+        }
+    case x => MergeStrategy.first
 }
 
 // Exclude a war file from published artifacts
 signedArtifacts := {
-  signedArtifacts.value.filterNot { case (_, file) =>
-    file.getName.endsWith(".war") || file.getName.endsWith(".war.asc")
-  }
+    signedArtifacts.value.filterNot { case (_, file) =>
+        file.getName.endsWith(".war") || file.getName.endsWith(".war.asc")
+    }
 }
 
 // Create executable war file
@@ -130,95 +127,107 @@ libraryDependencies ++= Seq(
 
 // Run package task before test to generate target/webapp for integration test
 Test / test := {
-  _root_.sbt.Keys.`package`.value
-  (Test / test).value
+    _root_.sbt.Keys.`package`.value
+    (Test / test).value
 }
 
 val executableKey = TaskKey[File]("executable")
 executableKey := {
-  import java.util.jar.Attributes.{Name => AttrName}
-  import java.util.jar.{Manifest => JarManifest}
+    import java.util.jar.Attributes.{Name => AttrName}
+    import java.util.jar.{Manifest => JarManifest}
 
-  val workDir = Keys.target.value / "executable"
-  val warName = Keys.name.value + ".war"
+    val workDir = Keys.target.value / "executable"
+    val warName = Keys.name.value + ".war"
 
-  val log = streams.value.log
-  log info s"building executable webapp in ${workDir}"
+    val log = streams.value.log
+    log info s"building executable webapp in ${workDir}"
 
-  // initialize temp directory
-  val temp = workDir / "webapp"
-  IO delete temp
+    // initialize temp directory
+    val temp = workDir / "webapp"
+    IO delete temp
 
-  // include jetty classes
-  val jettyJars = Keys.update.value select configurationFilter(name = ExecutableConfig.name)
-  jettyJars foreach { jar =>
-    IO unzip (jar, temp, (name: String) =>
-      (name startsWith "javax/") || (name startsWith "org/") || (name startsWith "META-INF/services/"))
-  }
-
-  // include original war file
-  val warFile = (Keys.`package`).value
-  IO unzip (warFile, temp)
-
-  // include launcher classes
-  val classDir = (Compile / Keys.classDirectory).value
-  val launchClasses = Seq("JettyLauncher.class" /*, "HttpsSupportConnector.class" */ )
-  launchClasses foreach { name =>
-    IO copyFile (classDir / name, temp / name)
-  }
-
-  // include plugins
-  val pluginsDir = temp / "WEB-INF" / "classes" / "plugins"
-  IO createDirectory (pluginsDir)
-
-  val plugins = IO readLines (Keys.baseDirectory.value / "src" / "main" / "resources" / "bundle-plugins.txt")
-  plugins.foreach { plugin =>
-    plugin.trim.split(":") match {
-      case Array(pluginId, pluginVersion) =>
-        val url = "https://github.com/" +
-          s"gitbucket/gitbucket-${pluginId}-plugin/releases/download/${pluginVersion}/gitbucket-${pluginId}-plugin-${pluginVersion}.jar"
-        log info s"Download: ${url}"
-        IO transfer (new java.net.URI(url).toURL.openStream, pluginsDir / url.substring(url.lastIndexOf("/") + 1))
-      case _ => ()
+    // include jetty classes
+    val jettyJars = Keys.update.value select configurationFilter(name = ExecutableConfig.name)
+    jettyJars foreach { jar =>
+        IO unzip
+            (
+              jar,
+              temp,
+              (name: String) =>
+                  (name startsWith "javax/") || (name startsWith "org/") ||
+                      (name startsWith "META-INF/services/")
+            )
     }
-  }
 
-  // zip it up
-  IO delete (temp / "META-INF" / "MANIFEST.MF")
-  val contentMappings = (temp.allPaths --- PathFinder(temp)).get pair { file =>
-    IO.relativizeFile(temp, file)
-  }
-  val manifest = new JarManifest
-  manifest.getMainAttributes put (AttrName.MANIFEST_VERSION, "1.0")
-  manifest.getMainAttributes put (AttrName.MAIN_CLASS, "JettyLauncher")
-  val outputFile = workDir / warName
-  IO jar (contentMappings.map { case (file, path) => (file, path.toString) }, outputFile, manifest, None)
+    // include original war file
+    val warFile = (Keys.`package`).value
+    IO unzip (warFile, temp)
 
-  // generate checksums
-  Seq(
-    "md5" -> "MD5",
-    "sha1" -> "SHA-1",
-    "sha256" -> "SHA-256"
-  ).foreach { case (extension, algorithm) =>
-    val checksumFile = workDir / (warName + "." + extension)
-    Checksums generate (outputFile, checksumFile, algorithm)
-  }
+    // include launcher classes
+    val classDir = (Compile / Keys.classDirectory).value
+    val launchClasses = Seq("JettyLauncher.class" /*, "HttpsSupportConnector.class" */ )
+    launchClasses foreach { name => IO copyFile (classDir / name, temp / name) }
 
-  // done
-  log info s"built executable webapp ${outputFile}"
-  outputFile
+    // include plugins
+    val pluginsDir = temp / "WEB-INF" / "classes" / "plugins"
+    IO createDirectory (pluginsDir)
+
+    val plugins = IO readLines
+        (Keys.baseDirectory.value / "src" / "main" / "resources" / "bundle-plugins.txt")
+    plugins.foreach { plugin =>
+        plugin.trim.split(":") match {
+            case Array(pluginId, pluginVersion) =>
+                val url = "https://github.com/" +
+                    s"gitbucket/gitbucket-${pluginId}-plugin/releases/download/${pluginVersion}/gitbucket-${pluginId}-plugin-${pluginVersion}.jar"
+                log info s"Download: ${url}"
+                IO transfer
+                    (
+                      new java.net.URI(url).toURL.openStream,
+                      pluginsDir / url.substring(url.lastIndexOf("/") + 1)
+                    )
+            case _ => ()
+        }
+    }
+
+    // zip it up
+    IO delete (temp / "META-INF" / "MANIFEST.MF")
+    val contentMappings = (temp.allPaths --- PathFinder(temp)).get pair { file =>
+        IO.relativizeFile(temp, file)
+    }
+    val manifest = new JarManifest
+    manifest.getMainAttributes put (AttrName.MANIFEST_VERSION, "1.0")
+    manifest.getMainAttributes put (AttrName.MAIN_CLASS, "JettyLauncher")
+    val outputFile = workDir / warName
+    IO jar
+        (
+          contentMappings.map { case (file, path) =>
+              (file, path.toString)
+          },
+          outputFile,
+          manifest,
+          None
+        )
+
+    // generate checksums
+    Seq("md5" -> "MD5", "sha1" -> "SHA-1", "sha256" -> "SHA-256").foreach {
+        case (extension, algorithm) =>
+            val checksumFile = workDir / (warName + "." + extension)
+            Checksums generate (outputFile, checksumFile, algorithm)
+    }
+
+    // done
+    log info s"built executable webapp ${outputFile}"
+    outputFile
 }
 publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (version.value.trim.endsWith("SNAPSHOT")) Some("snapshots" at nexus + "content/repositories/snapshots")
-  else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+    val nexus = "https://oss.sonatype.org/"
+    if (version.value.trim.endsWith("SNAPSHOT"))
+        Some("snapshots" at nexus + "content/repositories/snapshots")
+    else Some("releases" at nexus + "service/local/staging/deploy/maven2")
 }
 publishMavenStyle := true
-pomIncludeRepository := { _ =>
-  false
-}
-pomExtra := (
-  <url>https://github.com/gitbucket/gitbucket</url>
+pomIncludeRepository := { _ => false }
+pomExtra := (<url>https://github.com/gitbucket/gitbucket</url>
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
@@ -260,27 +269,18 @@ pomExtra := (
       <name>Matthieu Brouillard</name>
       <url>https://github.com/McFoggy</url>
     </developer>
-  </developers>
-)
+  </developers>)
 
 Test / testOptions ++= {
-  if (scala.util.Properties.isWin) {
-    Seq(
-      Tests.Exclude(
-        Set(
-          "gitbucket.core.GitBucketCoreModuleSpec"
-        )
-      )
-    )
-  } else {
-    Nil
-  }
+    if (scala.util.Properties.isWin) {
+        Seq(Tests.Exclude(Set("gitbucket.core.GitBucketCoreModuleSpec")))
+    } else { Nil }
 }
 
 Jetty / javaOptions ++= Seq(
   "-Dlogback.configurationFile=/logback-dev.xml",
   "-Xdebug",
   "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000",
-  "-Dorg.eclipse.jetty.annotations.AnnotationParser.LEVEL=OFF",
+  "-Dorg.eclipse.jetty.annotations.AnnotationParser.LEVEL=OFF"
   // "-Ddev-features=keep-session"
 )

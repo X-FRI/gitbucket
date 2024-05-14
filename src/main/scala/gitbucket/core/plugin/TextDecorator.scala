@@ -5,6 +5,6 @@ import gitbucket.core.service.RepositoryService.RepositoryInfo
 
 trait TextDecorator {
 
-  def decorate(text: String, repository: RepositoryInfo)(implicit context: Context): String
+    def decorate(text: String, repository: RepositoryInfo)(implicit context: Context): String
 
 }

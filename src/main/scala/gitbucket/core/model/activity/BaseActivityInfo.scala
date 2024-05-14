@@ -4,9 +4,8 @@ import gitbucket.core.model.Activity
 
 trait BaseActivityInfo {
 
-  def toActivity: Activity
+    def toActivity: Activity
 
-  protected def trimInfoString(str: String, maxLen: Int): String =
-    if (str.length > maxLen) s"${str.substring(0, maxLen)}..."
-    else str
+    protected def trimInfoString(str: String, maxLen: Int): String =
+        if (str.length > maxLen) s"${str.substring(0, maxLen)}..." else str
 }

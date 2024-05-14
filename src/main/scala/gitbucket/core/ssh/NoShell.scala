@@ -10,16 +10,15 @@ import java.io.{InputStream, OutputStream}
 import org.eclipse.jgit.lib.Constants
 
 class NoShell(sshAddress: SshAddress) extends ShellFactory {
-  override def createShell(channel: ChannelSession): Command = new Command() {
-    private var in: InputStream = null
-    private var out: OutputStream = null
-    private var err: OutputStream = null
-    private var callback: ExitCallback = null
+    override def createShell(channel: ChannelSession): Command = new Command() {
+        private var in: InputStream = null
+        private var out: OutputStream = null
+        private var err: OutputStream = null
+        private var callback: ExitCallback = null
 
-    override def start(channel: ChannelSession, env: Environment): Unit = {
-      val placeholderAddress = sshAddress.getUrl("OWNER", "REPOSITORY_NAME")
-      val message =
-        """
+        override def start(channel: ChannelSession, env: Environment): Unit = {
+            val placeholderAddress = sshAddress.getUrl("OWNER", "REPOSITORY_NAME")
+            val message = """
           | Welcome to
           |   _____   _   _     ____                   _             _
           |  / ____| (_) | |   |  _ \                 | |           | |
@@ -35,30 +34,22 @@ class NoShell(sshAddress: SshAddress) extends ShellFactory {
           |
           | git clone %s
         """.stripMargin.format(placeholderAddress).replace("\n", "\r\n") + "\r\n"
-      err.write(Constants.encode(message))
-      err.flush()
-      in.close()
-      out.close()
-      err.close()
-      callback.onExit(127)
-    }
+            err.write(Constants.encode(message))
+            err.flush()
+            in.close()
+            out.close()
+            err.close()
+            callback.onExit(127)
+        }
 
-    override def destroy(channel: ChannelSession): Unit = {}
+        override def destroy(channel: ChannelSession): Unit = {}
 
-    override def setInputStream(in: InputStream): Unit = {
-      this.in = in
-    }
+        override def setInputStream(in: InputStream): Unit = { this.in = in }
 
-    override def setOutputStream(out: OutputStream): Unit = {
-      this.out = out
-    }
+        override def setOutputStream(out: OutputStream): Unit = { this.out = out }
 
-    override def setErrorStream(err: OutputStream): Unit = {
-      this.err = err
-    }
+        override def setErrorStream(err: OutputStream): Unit = { this.err = err }
 
-    override def setExitCallback(callback: ExitCallback): Unit = {
-      this.callback = callback
+        override def setExitCallback(callback: ExitCallback): Unit = { this.callback = callback }
     }
-  }
 }

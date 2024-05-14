@@ -10,9 +10,9 @@ import javax.servlet.http.{HttpSessionEvent, HttpSessionListener}
  */
 class SessionCleanupListener extends HttpSessionListener {
 
-  override def sessionCreated(se: HttpSessionEvent): Unit = {}
+    override def sessionCreated(se: HttpSessionEvent): Unit = {}
 
-  override def sessionDestroyed(se: HttpSessionEvent): Unit =
-    FileUtils.deleteDirectory(getTemporaryDir(se.getSession.getId))
+    override def sessionDestroyed(se: HttpSessionEvent): Unit = FileUtils
+        .deleteDirectory(getTemporaryDir(se.getSession.getId))
 
 }
