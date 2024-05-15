@@ -2,10 +2,10 @@
 @import gitbucket.core.view.helpers
 <feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xml:lang="en-US">
   <id>tag:@context.host,2013:gitbucket</id>
-  <title>GitBucket's activities</title>
+  <title>X-FRI Coding Space's activities</title>
   <link type="application/atom+xml" rel="self" href="@context.baseUrl/activities.atom"/>
   <author>
-    <name>GitBucket</name>
+    <name>X-FRI Coding Space</name>
     <uri>@context.baseUrl</uri>
   </author>
   <updated>@helpers.datetimeRFC3339(if(activities.isEmpty) new java.util.Date else activities.map(_.activityDate).max)</updated>
